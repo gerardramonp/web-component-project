@@ -75,11 +75,11 @@ template.innerHTML = `
   </div>
 `;
 
-class CustomButton extends HTMLElement {
+class OwcButton extends HTMLElement {
   constructor() {
     super();
 
-    this.label = "";
+    this.label = "label text";
     this.shape = "rectangle";
     this.face = "fill";
     this.color = "#00cc99";
@@ -109,7 +109,6 @@ class CustomButton extends HTMLElement {
 
   attributeChangedCallback(attributeName, oldValue, newValue) {
     this[attributeName] = newValue;
-    console.log(`${attributeName} changed from ${oldValue} to => ${newValue}`);
 
     this.buttonElement.classList.remove("disabled");
     if (attributeName === "disabled" && newValue) {
@@ -176,4 +175,4 @@ class CustomButton extends HTMLElement {
   }
 }
 
-window.customElements.define("my-button", CustomButton);
+window.customElements.define("owc-button", OwcButton);

@@ -1,0 +1,12 @@
+.rectangle{
+    border-radius: 5px;
+}
+.circle{
+    border-radius: 100%;
+    width: 50px
+}
+.square{
+    width: 50px;
+    border-radius: 5px;
+    color: #79bdac;
+}

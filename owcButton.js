@@ -1,3 +1,5 @@
+import BUTTON_ATTRIBUTES from "./buttonAttributes";
+
 const template = document.createElement("template");
 
 template.innerHTML = `
@@ -75,16 +77,30 @@ template.innerHTML = `
   </div>
 `;
 
+const shapeValidValues = ["rectangle", "pill", "circle", "square"];
+const faceValidValues = ["fill", "outline", "text", "raised"];
+
+const validAttributeValues = [...shapeValidValues, ...faceValidValues, "true"];
+
+const observedAttributes = [
+  "label",
+  "shape",
+  "color",
+  "face",
+  "disabled",
+  "textcolor",
+];
+
 class OwcButton extends HTMLElement {
   constructor() {
     super();
 
-    this.label = "label text";
-    this.shape = "rectangle";
-    this.face = "fill";
+    this.label = "insert label";
+    this.shape = BUTTON_ATTRIBUTES.shape.rectangle;
+    this.face = BUTTON_ATTRIBUTES.face.fill;
     this.color = "#00cc99";
     this.textcolor = "black";
-    this.disabled = false;
+    this.disabled = BUTTON_ATTRIBUTES.disabled.false;
 
     this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.appendChild(template.content.cloneNode(true));
@@ -96,28 +112,38 @@ class OwcButton extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["label", "shape", "color", "face", "disabled", "textcolor"];
+    return [...observedAttributes];
   }
 
   attributeChangedCallback(attributeName, oldValue, newValue) {
     this[attributeName] = newValue;
 
+    console.log("------_________________-----");
+
     console.log(`${attributeName} old: ${oldValue} new: ${newValue}`);
+    console.log("Attributes: ", this.getAttributeNames());
 
     this.buttonElement.classList.remove("disabled");
     if (attributeName === "disabled" && newValue) {
-      this.disabled = true;
+      this.disabled = BUTTON_ATTRIBUTES.disabled.true;
     }
 
     this.buttonElement.style.background = this.color;
     this.buttonElement.style.color = this.textcolor;
     this.buttonElement.style.border = `1px solid ${this.test}`;
 
-    if (oldValue !== newValue) {
-      this.applyShape(this.shape);
-      this.applyFace(this.face);
-      this.applyIsDisabled();
-      this.buttonElement.style.background = this.color;
+    if (this.checkAttributesValid()) {
+      if (oldValue !== newValue) {
+        this.applyShape(this.shape);
+        this.applyFace(this.face);
+        this.applyIsDisabled();
+        this.buttonElement.style.background = this.color;
+      }
+    } else {
+      console.log("Some attribute is not valid");
+
+      this.removeAllAttributes();
+      this.setDefaultValues();
     }
 
     this.render();
@@ -130,9 +156,45 @@ class OwcButton extends HTMLElement {
     this.buttonElement.style.background = this.color;
   }
 
+  checkAttributesValid() {
+    const currentAttributes = this.getAttributeNames();
+    let result = true;
+    for (let i = 0; i < currentAttributes.length; i++) {
+      let attribute = currentAttributes[i];
+      if (attribute !== "color" && attribute !== "textcolor") {
+        const attributeValue = this.getAttribute(attribute);
+        result = validAttributeValues.some((value) => value === attributeValue);
+        if (!result) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  removeAllAttributes() {
+    const currentAttributes = this.getAttributeNames();
+    currentAttributes.forEach((attribute) => {
+      this.removeAttribute(attribute);
+    });
+  }
+
+  setDefaultValues() {
+    this.buttonElement.classList.remove(...this.buttonElement.classList);
+    this.label = "insert label";
+    this.shape = BUTTON_ATTRIBUTES.shape.rectangle;
+    this.face = BUTTON_ATTRIBUTES.face.fill;
+    this.color = "#00cc99";
+    this.textcolor = "black";
+    this.disabled = BUTTON_ATTRIBUTES.disabled.false;
+    this.buttonElement.style.background = this.color;
+    this.buttonElement.style.border = `1px solid ${this.color}`;
+  }
+
   applyShape(shapeType) {
-    const shapeList = ["rectangle", "pill", "circle", "square"];
-    const missingShapes = shapeList.filter((element) => element !== shapeType);
+    const missingShapes = shapeValidValues.filter(
+      (element) => element !== shapeType
+    );
     missingShapes.forEach((element) => {
       this.buttonElement.classList.remove(element);
     });
@@ -141,14 +203,19 @@ class OwcButton extends HTMLElement {
   }
 
   applyFace(faceType) {
-    const faceList = ["fill", "outline", "text", "raised"];
-    const missingFaces = faceList.filter((element) => element !== faceType);
+    const missingFaces = faceValidValues.filter(
+      (element) => element !== faceType
+    );
     missingFaces.forEach((face) => {
       this.buttonElement.classList.remove(face);
     });
 
     this.buttonElement.classList.add(faceType);
-    if (faceType === "outline" || faceType === "text") {
+
+    if (
+      faceType === BUTTON_ATTRIBUTES.face.outline ||
+      faceType === BUTTON_ATTRIBUTES.face.text
+    ) {
       this.buttonElement.style.color = this.color;
       this.buttonElement.style.border = `1px solid ${this.color}`;
     }
@@ -160,10 +227,6 @@ class OwcButton extends HTMLElement {
     } else {
       this.buttonElement.classList.remove("disabled");
     }
-  }
-
-  checkAttributes() {
-    // check if attributes are correct and if not, apply default class
   }
 
   render() {

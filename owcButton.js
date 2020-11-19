@@ -93,14 +93,6 @@ class OwcButton extends HTMLElement {
 
     this.buttonElement.style.background = this.color;
     this.buttonElement.style.border = `1px solid ${this.color}`;
-
-    this.buttonElement.addEventListener("click", () => {
-      this.dispatchEvent(
-        new CustomEvent("onClick", {
-          detail: "Hello from within the Custom Element",
-        })
-      );
-    });
   }
 
   static get observedAttributes() {
@@ -110,6 +102,8 @@ class OwcButton extends HTMLElement {
   attributeChangedCallback(attributeName, oldValue, newValue) {
     this[attributeName] = newValue;
 
+    console.log(`${attributeName} old: ${oldValue} new: ${newValue}`);
+
     this.buttonElement.classList.remove("disabled");
     if (attributeName === "disabled" && newValue) {
       this.disabled = true;
@@ -117,6 +111,7 @@ class OwcButton extends HTMLElement {
 
     this.buttonElement.style.background = this.color;
     this.buttonElement.style.color = this.textcolor;
+    this.buttonElement.style.border = `1px solid ${this.test}`;
 
     if (oldValue !== newValue) {
       this.applyShape(this.shape);
@@ -155,6 +150,7 @@ class OwcButton extends HTMLElement {
     this.buttonElement.classList.add(faceType);
     if (faceType === "outline" || faceType === "text") {
       this.buttonElement.style.color = this.color;
+      this.buttonElement.style.border = `1px solid ${this.color}`;
     }
   }
 

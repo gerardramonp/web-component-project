@@ -1,5 +1,5 @@
 {
-  "name": "owc-button",
+  "name": "owc-custom-button",
   "version": "1.0.0",
   "description": "One Web Component - Custom Button",
   "main": "owcButton.js",
